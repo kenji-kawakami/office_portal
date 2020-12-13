@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}部署 {% endblock %}
+
+{% block content %}
+
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark"><i class="fas fa-users"></i> 部署</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item">
+                            <a href="">トップ</a>
+                        </li>
+                        <li class="breadcrumb-item active">部署</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <section class="col-sm-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-edit"> 部署フォーム</i></h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i></button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'office_info:departmental_create' %}" method="post">
+                            <div class="form-group col-sm-12">
+                                <label>部署名</label>
+                                <input type="text" class="form-control" name="name" placeholder="例> 事業部">
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label>詳細</label>
+                                <textarea class="form-control" name="remark" rows="3"
+                                          placeholder="部署の詳細情報を入力してください。"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-share-square"></i>　登録　</button>
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-list"> 部署リスト</i></h3>
+                    </div>
+                    <div class="card-body">
+                        <table id="departmental_table" class="table table-bordered table-striped dt-responsive nowrap">
+                            <thead>
+                            <tr>
+                                <th>＃</th>
+                                <th>部署名</th>
+                                <th>詳細</th>
+                                <th>機能</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for departmental in departments %}
+                                <tr>
+                                    <td class="align-middle">{{ forloop.counter }}</td>
+                                    <td class="align-middle ellipsis">{{ departmental.name }}</td>
+                                    <td class="align-middle ellipsis">{{ departmental.remark }}</td>
+                                    <td class="align-middle">
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                data-toggle="modal" data-target="#modal-departmental-ref"
+                                                data-name="{{ departmental.name }}"
+                                                data-remark="{{ departmental.remark|linebreaksbr }}">
+                                            <i class="fas fa-folder"></i>
+                                            参照
+                                        </button>
+                                        <button type="button" class="btn btn-info btn-sm"
+                                                data-toggle="modal" data-target="#modal-departmental-upd"
+                                                data-id="{{ departmental.pk }}"
+                                                data-name="{{ departmental.name }}"
+                                                data-remark="{{ departmental.remark }}">
+                                            <i class="fas fa-pencil-alt"></i>
+                                            編集
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                                data-toggle="modal" data-target="#modal-departmental-del"
+                                                data-id="{{ departmental.pk }}"
+                                                data-name="{{ departmental.name }}">
+                                            <i class="fas fa-trash"></i>
+                                            削除
+                                        </button>
+                                        <a class="btn btn-success btn-sm"
+                                           href="{% url 'office_info:skill_list' departmental.pk %}"
+                                           role="button">
+                                            <i class="fas fa-file-alt"></i>
+                                            スキル一覧
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <div class="modal fade" id="modal-departmental-upd">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <form method="post" id="upd">
+                            <div class="modal-header">
+                                <h5 class="modal-title">部署編集</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group col-sm-12">
+                                    <label>部署名</label>
+                                    <input type="text" class="form-control" name="name" id="name"
+                                           placeholder="例> 事業部">
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label>詳細</label>
+                                    <textarea class="form-control" name="remark" id="remark" rows="3"
+                                              placeholder="部署の詳細情報を入力してください。"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">　キャンセル　</button>
+                                <button type="submit" class="btn btn-primary">　保存　</button>
+                            </div>
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modal-departmental-ref">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">部署参照</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr class="d-flex">
+                                    <td class="col-3">部署名</td>
+                                    <td class="col-9" id="name"></td>
+                                </tr>
+                                <tr class="d-flex">
+                                    <td class="col-3">詳細</td>
+                                    <td class="col-9" id="remark"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">　閉じる　</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modal-departmental-del">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">削除の確認</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p></p>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">　キャンセル　</button>
+                            <a id="del" class="btn btn-primary" role="button">　OK　</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+{% endblock %}

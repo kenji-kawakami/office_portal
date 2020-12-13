@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}タスク {% endblock %}
+
+{% block content %}
+
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark"><i class="fas fa-tasks"></i> タスク</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item">
+                            <a href="">トップ</a>
+                        </li>
+                        {% if process_id %}
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'office_info:process_list' %}">工程（{{ process_name }}）</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'office_info:dataset_list' process_id %}">データセット（{{ dataset_name }}）</a>
+                            </li>
+                        {% endif %}
+                        <li class="breadcrumb-item active">タスク</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <section class="col-lg-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-edit"> タスクフォーム</i></h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i></button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if process_id %}
+                            <form action="{% url 'office_info:task_create' process_id dataset_id %}" method="post">
+                        {% else %}
+                            <form action="{% url 'office_info:task_select_create' %}" method="post">
+                        {% endif %}
+                        <div class="form-group col-sm-12">
+                            <label>タスク名</label>
+                            <input type="text" class="form-control" name="name" placeholder="例> 検討">
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label>優先度</label>
+                            <input type="number" class="form-control" step="1" name="priority" min="1" value="1">
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label>工数（ＭＤ）</label>
+                            <input type="number" class="form-control" step="0.1" name="cost"
+                                   value="1.0" min="0.1">
+                        </div>
+                        {% if not process_id %}
+                            <div class="form-group col-sm-12">
+                                <label>工程名</label>
+                                <select class="form-control parent" name="process_id">
+                                    <option value="" selected="selected">選択してください</option>
+                                    {% for process in processes %}
+                                        <option value="{{ process.pk }}">{{ process.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label>データセット名</label>
+                                <select class="form-control children" name="dataset_id" disabled>
+                                    <option value="" selected="selected">選択してください</option>
+                                    {% for dataset in datasets %}
+                                        <option value="{{ dataset.pk }}"
+                                                data-val="{{ dataset.process.id }}">{{ dataset.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                        <div class="form-group col-sm-12">
+                            <label>詳細</label>
+                            <textarea class="form-control" name="remark" rows="3"
+                                      placeholder="タスクの詳細情報を入力してください。"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-share-square"></i>　登録　
+                        </button>
+                        {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-list"> タスクリスト</i></h3>
+                    </div>
+                    <div class="card-body">
+                        <table id="task_table" class="table table-bordered table-striped dt-responsive nowrap">
+                            <thead>
+                            <tr>
+                                <th>＃</th>
+                                <th>工程名</th>
+                                <th>データセット名</th>
+                                <th>タスク名</th>
+                                <th>優先度</th>
+                                <th>工程（ＭＤ）</th>
+                                <th>詳細</th>
+                                <th>機能</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for task in tasks %}
+                                <tr>
+                                    <td class="align-middle">{{ forloop.counter }}</td>
+                                    <td class="align-middle ellipsis">{{ task.dataset.process.name }}</td>
+                                    <td class="align-middle ellipsis">{{ task.dataset.name }}</td>
+                                    <td class="align-middle ellipsis">{{ task.name }}</td>
+                                    <td class="align-middle">{{ task.priority }}</td>
+                                    <td class="align-middle">{{ task.cost }}</td>
+                                    <td class="align-middle ellipsis">{{ task.remark }}</td>
+                                    <td class="align-middle">
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                data-toggle="modal" data-target="#modal-task-ref"
+                                                data-name="{{ task.name }}"
+                                                data-priority="{{ task.priority }}"
+                                                data-cost="{{ task.cost }}"
+                                                data-remark="{{ task.remark|linebreaksbr }}">
+                                            <i class="fas fa-folder"></i>
+                                            参照
+                                        </button>
+                                        <button type="button" class="btn btn-info btn-sm"
+                                                data-toggle="modal" data-target="#modal-task-upd"
+                                                data-process_id="{{ task.dataset.process_id }}"
+                                                data-dataset_id="{{ task.dataset_id }}"
+                                                data-id="{{ task.pk }}"
+                                                data-name="{{ task.name }}"
+                                                data-priority="{{ task.priority }}"
+                                                data-cost="{{ task.cost }}"
+                                                data-remark="{{ task.remark }}">
+                                            <i class="fas fa-pencil-alt"></i>
+                                            編集
+                                        </button>
+                                        <a class="btn btn-danger btn-sm"
+                                           href="{% url 'office_info:task_delete' task.dataset.process_id task.dataset_id task.pk %}"
+                                           role="button">
+                                            <i class="fas fa-trash"></i>
+                                            削除
+                                        </a>
+                                        <button type="button" class="btn btn-success btn-sm"
+                                                data-toggle="modal" data-target="#modal-skill-list"
+                                                data-process_id="{{ task.dataset.process_id }}"
+                                                data-dataset_id="{{ task.dataset_id }}"
+                                                data-id="{{ task.pk }}">
+                                            <i class="fas fa-file-alt"></i>
+                                            スキル追加
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <div class="modal fade" id="modal-task-upd">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <form method="post" id="upd">
+                            <div class="modal-header">
+                                <h5 class="modal-title">タスク編集</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group col-sm-12">
+                                    <label>タスク名</label>
+                                    <input type="text" class="form-control" name="name" id="name" placeholder="例> 検討">
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label>優先度</label>
+                                    <input type="number" class="form-control" step="1" name="priority"
+                                           id="priority" min="1">
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label>工数（ＭＤ）</label>
+                                    <input type="number" class="form-control" step="0.1" name="cost"
+                                           id="cost" min="0.1">
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label>詳細</label>
+                                    <textarea class="form-control" name="remark" id="remark" rows="3"
+                                              placeholder="タスクの詳細情報を入力してください。"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">　キャンセル　</button>
+                                <button type="submit" class="btn btn-primary">　保存　</button>
+                            </div>
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modal-task-ref">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">タスク参照</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr class="d-flex">
+                                    <td class="col-3">タスク名</td>
+                                    <td class="col-9" id="name"></td>
+                                </tr>
+                                <tr class="d-flex">
+                                    <td class="col-3">優先度</td>
+                                    <td class="col-9" id="priority"></td>
+                                </tr>
+                                <tr class="d-flex">
+                                    <td class="col-3">工数（ＭＤ）</td>
+                                    <td class="col-9" id="cost"></td>
+                                </tr>
+                                <tr class="d-flex">
+                                    <td class="col-3">詳細</td>
+                                    <td class="col-9" id="remark"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">　閉じる　</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modal-skill-list">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" id="skill-upd">
+                            <div class="modal-header">
+                                <h5 class="modal-title">スキル追加</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">　キャンセル　</button>
+                                <button type="submit" class="btn btn-primary">　保存　</button>
+                            </div>
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

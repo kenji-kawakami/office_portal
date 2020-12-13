@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}社員フォーム {% endblock %}
+
+{% block content %}
+
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark"><i class="fas fa-user-edit"></i> 社員フォーム</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item">
+                            <a href="">トップ</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'office_info:staff_list' %}">社員リスト</a>
+                        </li>
+                        <li class="breadcrumb-item active">社員フォーム</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <section class="col-sm-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-edit"> 社員フォーム</i></h3>
+                    </div>
+                    <div class="card-body">
+                        <form action="" method="post">
+                            <ul class="nav nav-tabs" id="staff-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active"
+                                       id="basic-information-tab"
+                                       data-toggle="tab"
+                                       href="#basic-information"
+                                       role="tab"
+                                       aria-controls="basic-information"
+                                       aria-selected="true">基本情報</a>
+                                </li>
+                                {% if departments %}
+                                    {% for departmental in departments %}
+                                        <li class="nav-item">
+                                            <a class="nav-link"
+                                               id="departmental-{{ departmental.id }}-tab"
+                                               data-toggle="tab"
+                                               href="#departmental-{{ departmental.id }}"
+                                               role="tab"
+                                               aria-controls="departmental-{{ departmental.id }}"
+                                               aria-selected="false">{{ departmental.name }}</a>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                       id="growth-rate-tab"
+                                       data-toggle="tab"
+                                       href="#growth-rate"
+                                       role="tab"
+                                       aria-controls="growth-rate"
+                                       aria-selected="false">成長度</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="staff-tabContent">
+                                <div class="tab-pane fade show active"
+                                     id="basic-information"
+                                     role="tabpanel"
+                                     aria-labelledby="basic-information-tab">
+                                    <br/>
+                                    <div class="form-group col-sm-12">
+                                        <label>社員コード</label>
+                                        <input type="text" class="form-control" name="company_code">
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <label>姓（漢字）</label>
+                                        <input type="text" class="form-control" name="last_name_kanji">
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <label>名（漢字）</label>
+                                        <input type="text" class="form-control" name="last_name_kanji">
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <label>姓（かな）</label>
+                                        <input type="text" class="form-control" name="last_name_kana">
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <label>名（かな）</label>
+                                        <input type="text" class="form-control" name="last_name_kana">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>生年月日</label>
+                                        <div class="input-group date" id="reservationdate" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                   name="birthdate" data-target="#reservationdate"/>
+                                            <div class="input-group-append" data-target="#reservationdate"
+                                                 data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <p class="control-label"><b>性別</b></p>
+                                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-light active">
+                                                <input type="radio"
+                                                       name="sex"
+                                                       id="sex1"
+                                                       autocomplete="off"
+                                                       checked> 男性
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="radio"
+                                                       name="sex"
+                                                       id="sex2"
+                                                       autocomplete="off"> 女性
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>郵便番号</label>
+                                        <input type="text" class="form-control" name="zip_code">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>都道府県</label>
+                                        <input type="text" class="form-control" name="state">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>市区町村</label>
+                                        <input type="text" class="form-control" name="city">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>番地、ビル名</label>
+                                        <input type="text" class="form-control" name="address">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>自宅電話番号</label>
+                                        <input type="text" class="form-control" name="tel">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>携帯電話番号</label>
+                                        <input type="text" class="form-control" name="mobile">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>メールアドレス</label>
+                                        <input type="text" class="form-control" name="mail_address">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>入社年月日</label>
+                                        <input type="text" class="form-control" name="hire_date">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>役職名</label>
+                                        <select class="form-control">
+                                            <option>選択してください</option>
+                                            {% for name in position_name %}
+                                                <option>{{ name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>所属部署</label>
+                                        <select class="form-control">
+                                            <option>選択してください</option>
+                                            {% for departmental in departments %}
+                                                <option>{{ departmental.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>職種</label>
+                                        <select class="form-control">
+                                            <option>選択してください</option>
+                                            {% for name in profession %}
+                                                <option>{{ name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <p class="control-label"><b>雇用区分</b></p>
+                                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-light active">
+                                                <input type="radio"
+                                                       name="employment"
+                                                       id="employment1"
+                                                       autocomplete="off"
+                                                       checked> 正社員
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="radio"
+                                                       name="employment"
+                                                       id="employment2"
+                                                       autocomplete="off"> 嘱託社員
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="radio"
+                                                       name="employment"
+                                                       id="employment3"
+                                                       autocomplete="off"> アルバイト
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>健康保険番号</label>
+                                        <input type="text" class="form-control"
+                                               name="health_insurance_number">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>基礎年金番号</label>
+                                        <input type="text" class="form-control"
+                                               name="basic_pension_numbers">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>マイナンバー</label>
+                                        <input type="text" class="form-control" name="my_number">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>雇用保険番号</label>
+                                        <input type="text" class="form-control"
+                                               name="employment_insurance_number">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>国籍</label>
+                                        <select class="form-control">
+                                            <option>選択してください</option>
+                                            {% for name in nationality %}
+                                                <option>{{ name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>出身地</label>
+                                        <select class="form-control">
+                                            <option>選択してください</option>
+                                            {% for name in native_place %}
+                                                <option>{{ name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <p class="control-label"><b>血液型</b></p>
+                                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-light active">
+                                                <input type="radio"
+                                                       name="blood_type"
+                                                       id="blood_type1"
+                                                       autocomplete="off"
+                                                       checked> Ａ型
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="radio"
+                                                       name="blood_type"
+                                                       id="blood_type2"
+                                                       autocomplete="off"> Ｂ型
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="radio"
+                                                       name="blood_type"
+                                                       id="blood_type3"
+                                                       autocomplete="off"> Ｏ型
+                                            </label>
+                                            <label class="btn btn-light">
+                                                <input type="radio"
+                                                       name="blood_type"
+                                                       id="blood_type4"
+                                                       autocomplete="off"> ＡＢ型
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>最終学歴</label>
+                                        <input type="text" class="form-control" name="academic_history">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>基本給</label>
+                                        <input type="text" class="form-control" name="basic_salary">
+                                    </div>
+                                    <div class="form-group col-sm-12">
+                                        <label>特記事項</label>
+                                        <textarea class="form-control" name="notices" rows="5"></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-default">　　手当追加　　</button>
+                                <button type="submit" class="btn btn-default">　保有資格追加　</button>
+                                <button type="submit" class="btn btn-default">　保有権限追加　</button>
+                                <button type="submit" class="btn btn-default">　　家族追加　　</button>
+                            </div>
+
+                            {% if departments %}
+                                {% for departmental in departments %}
+                                    <div class="tab-pane fade"
+                                         id="departmental-{{ departmental.id }}"
+                                         role="tabpanel"
+                                         aria-labelledby="departmental-{{ departmental.id }}-tab">
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="tab-pane fade"
+                                 id="growth-rate"
+                                 role="tabpanel"
+                                 aria-labelledby="growth-rate-tab">
+                                <br/>
+                                {% if departments %}
+                                    <table id="datatable-growth-rate"
+                                           class="table table-bordered table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>＃</th>
+                                            {% for departmental in departments %}
+                                                <th colspan="2">{{ departmental.name }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td class="align-middle">入社時</td>
+                                            {% for departmental in departments %}
+                                                <td class="align-middle">
+                                                    <p>Ａ</p>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <input type="number" class="form-control"
+                                                           step="1" name="score" min="0" max="100">
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle">現在</td>
+                                            {% for departmental in departments %}
+                                                <td class="align-middle">
+                                                    <p>Ｂ</p>
+                                                </td>
+                                                <td class="align-middle">
+                                                    <input type="number" class="form-control"
+                                                           step="1" name="score" min="0" max="100">
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            </div>
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+{% endblock %}

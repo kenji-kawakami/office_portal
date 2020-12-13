@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}工程 {% endblock %}
+
+{% block content %}
+
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark"><i class="fas fa-tasks"></i> 工程</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item">
+                            <a href="">トップ</a>
+                        </li>
+                        <li class="breadcrumb-item active">工程</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <section class="col-lg-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-edit"> 工程フォーム</i></h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i></button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form action="{% url 'office_info:process_create' %}" method="post">
+                            <div class="form-group col-sm-12">
+                                <label>工程名</label>
+                                <input type="text" class="form-control" name="name" placeholder="例> 要件定義">
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label>優先度</label>
+                                <input type="number" class="form-control" step="1" name="priority" min="1" value="1">
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label>詳細</label>
+                                <textarea class="form-control" name="remark" rows="3"
+                                          placeholder="工程の詳細情報を入力してください。"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-share-square"></i>　登録　</button>
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-list"> 工程リスト</i></h3>
+                    </div>
+                    <div class="card-body">
+                        <table id="process_table" class="table table-bordered table-striped dt-responsive nowrap">
+                            <thead>
+                            <tr>
+                                <th>＃</th>
+                                <th>工程名</th>
+                                <th>優先度</th>
+                                <th>詳細</th>
+                                <th>機能</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for process in processes %}
+                                <tr>
+                                    <td class="align-middle">{{ forloop.counter }}</td>
+                                    <td class="align-middle ellipsis">{{ process.name }}</td>
+                                    <td class="align-middle">{{ process.priority }}</td>
+                                    <td class="align-middle ellipsis">{{ process.remark }}</td>
+                                    <td class="align-middle">
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                data-toggle="modal" data-target="#modal-process-ref"
+                                                data-name="{{ process.name }}"
+                                                data-priority="{{ process.priority }}"
+                                                data-remark="{{ process.remark|linebreaksbr }}">
+                                            <i class="fas fa-folder"></i>
+                                            参照
+                                        </button>
+                                        <button type="button" class="btn btn-info btn-sm"
+                                                data-toggle="modal" data-target="#modal-process-upd"
+                                                data-id="{{ process.pk }}"
+                                                data-name="{{ process.name }}"
+                                                data-priority="{{ process.priority }}"
+                                                data-remark="{{ process.remark }}">
+                                            <i class="fas fa-pencil-alt"></i>
+                                            編集
+                                        </button>
+                                        <a class="btn btn-danger btn-sm"
+                                           href="{% url 'office_info:process_delete' process.pk %}"
+                                           role="button">
+                                            <i class="fas fa-trash"></i>
+                                            削除
+                                        </a>
+                                        <a class="btn btn-success btn-sm"
+                                           href="{% url 'office_info:dataset_list' process.pk %}"
+                                           role="button">
+                                            <i class="fas fa-file-alt"></i>
+                                            データセット
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <div class="modal fade" id="modal-process-upd">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <form method="post" id="upd">
+                            <div class="modal-header">
+                                <h5 class="modal-title">工程編集</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group col-sm-12">
+                                    <label>工程名</label>
+                                    <input type="text" class="form-control" name="name" id="name"
+                                           placeholder="例> 要件定義">
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label>優先度</label>
+                                    <input type="number" class="form-control" step="1" name="priority"
+                                           id="priority" min="1">
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label>詳細</label>
+                                    <textarea class="form-control" name="remark" id="remark" rows="3"
+                                              placeholder="工程の詳細情報を入力してください。"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">　キャンセル　</button>
+                                <button type="submit" class="btn btn-primary">　保存　</button>
+                            </div>
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modal-process-ref">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">工程参照</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr class="d-flex">
+                                    <td class="col-3">工程名</td>
+                                    <td class="col-9" id="name"></td>
+                                </tr>
+                                <tr class="d-flex">
+                                    <td class="col-3">優先度</td>
+                                    <td class="col-9" id="priority"></td>
+                                </tr>
+                                <tr class="d-flex">
+                                    <td class="col-3">詳細</td>
+                                    <td class="col-9" id="remark"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">　閉じる　</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
